@@ -49,6 +49,7 @@ namespace MyBudget.Core.Controllers
 
             if (result.Succeeded)
             {
+                _logger.LogInformation("Usuario '{0}' criado na aplicação", dto.Email);
                 var token = BuildToken(dto);
                 return Created($"", token);
             }
@@ -69,10 +70,12 @@ namespace MyBudget.Core.Controllers
 
             if (result.Succeeded)
             {
+                _logger.LogInformation("Usuario '{0}' entrou na aplicação", dto.Email);
                 return BuildToken(dto);
             }
             else
             {
+                _logger.LogInformation("Usuario '{0}' tentou entrar na aplicação", dto.Email);
                 ModelState.AddModelError(string.Empty, "Usuário ou senha inválido!");
                 return BadRequest(ModelState);
             }
