@@ -13,6 +13,6 @@
 
         void Update(T model);
 
-        void Delete(int id);
+        T Delete(int id);
     }
 }

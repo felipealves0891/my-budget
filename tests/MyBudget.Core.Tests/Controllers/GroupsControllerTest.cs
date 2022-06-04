@@ -1,9 +1,12 @@
 ﻿using Bogus;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using MyBudget.Core.Controllers;
+using MyBudget.Core.Dtos.Groups;
 using MyBudget.Core.Models;
 using MyBudget.Core.Models.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using Xunit;
 
@@ -70,7 +73,8 @@ namespace MyBudget.Core.Tests.Controllers
 
             //Assert
             Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("O Nome escolhido não esta disponivel!", GetValueInResult(result));
+            Assert.Equal("Você já possui um grupo com esse nome!", GetValueInResult(result));
+            _mockRepository.VerifyAll();
         }
 
         [Fact]
@@ -93,6 +97,7 @@ namespace MyBudget.Core.Tests.Controllers
             //Assert
             Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("O fluxo escolhido é invalido!", GetValueInResult(result));
+            _mockRepository.VerifyAll();
         }
 
         [Fact]
@@ -130,84 +135,131 @@ namespace MyBudget.Core.Tests.Controllers
 
             //Assert
             Assert.IsType<NoContentResult>(result);
+            _mockRepository.VerifyAll();
         }
 
         [Fact]
-        public void Put_InvalidGroup_Assertive()
+        public void Put_NotFound_Exception()
         {
-
-        }
-
-
-    }
-
-    public class CreatingGroupDto
-    {
-        public string Name { get; set; }
-
-        public string Abbr { get; set; }
-
-        public string Sense { get; set; }
-    }
-
-    public class ChangeGroupDto
-    {
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string Abbr { get; set; }
-    }
-
-    public class GroupsController : ControllerBase
-    {
-        private readonly IGroupsRepository _repository;
-
-        public GroupsController(IGroupsRepository repository)
-        {
-            _repository = repository;
-        }
-
-        [HttpPost]
-        public ActionResult Post([FromBody] CreatingGroupDto dto)
-        {
-            var ownerId = ((ClaimsIdentity)User.Identity).FindFirst("Id").Value;
-
-            var exists = _repository.Get(dto.Name, ownerId);
-            if (exists != null)
-                return BadRequest("O Nome escolhido não esta disponivel!");
-
-            if(!Enum.TryParse<Sense>(dto.Sense, out var sense))
-                return BadRequest("O fluxo escolhido é invalido!");
-
-            var group = new Group
+            //Arrange
+            ChangeGroupDto dto = new ChangeGroupDto
             {
-                Name = dto.Name,
-                Abbr = dto.Abbr,
-                Sense = sense,
-                OwnerId = ownerId
+                Id = _faker.Random.Int(1),
+                Name = _faker.Random.Word(),
+                Abbr = _faker.Random.Word()
             };
 
-            _repository.Add(group);
-            return Created("", group);
+            //Act
+            var controller = new GroupsController(_mockRepository.Object);
+            base.AddControllerContext(controller);
+
+            ActionResult result = controller.Put(dto);
+
+            //Assert
+            Assert.IsType<NotFoundResult>(result);
+            _mockRepository.VerifyAll();
         }
 
-        [HttpPut]
-        public ActionResult Put([FromBody] ChangeGroupDto dto)
+        [Fact]
+        public void Put_InvalidName_Exception()
         {
-            var ownerId = ((ClaimsIdentity)User.Identity).FindFirst("Id").Value;
+            //Arrange
+            ChangeGroupDto dto = new ChangeGroupDto
+            {
+                Id = _faker.Random.Int(1),
+                Name = _faker.Random.Word(),
+                Abbr = _faker.Random.Word()
+            };
 
-            var group = _repository.Get(dto.Id, ownerId);
-            if (group == null)
-                return BadRequest("Grupo não localizado!");
+            Group group = new Group() { Id = 0 };
 
-            group.Name = dto.Name;
-            group.Abbr = dto.Abbr;
+            _mockRepository.Setup(
+                x => x.Get(
+                    It.Is<string>(s => s.Equals(dto.Name)),
+                    It.Is<string>(x => x.Equals(UserId))))
+                .Returns(group)
+                .Verifiable();
 
-            _repository.Update(group);
-            return NoContent();
+            //Act
+            var controller = new GroupsController(_mockRepository.Object);
+            base.AddControllerContext(controller);
+
+            ActionResult result = controller.Put(dto);
+
+            //Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Você já possui um grupo com esse nome!", GetValueInResult(result));
+            _mockRepository.VerifyAll();
         }
-        
-    }
 
+        [Fact]
+        public void Delete_RemoveGroup_Assertive()
+        {
+            //Arrange 
+            int id = _faker.Random.Int(1);
+            var group = new Group() { Id = 0 };
+            _mockRepository.Setup(x => x.Delete(It.Is<int>(x => x.Equals(id))))
+                .Returns(group)
+                .Verifiable();
+
+            //Act
+            var controller = new GroupsController(_mockRepository.Object);
+            ActionResult result = controller.Delete(id);
+
+            //Assert
+            Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(group, GetValueInResult(result));
+            _mockRepository.VerifyAll();
+        }
+
+        [Fact]
+        public void Delete_WithDependencies_Exception()
+        {
+            //Arrange 
+            int id = _faker.Random.Int(1);
+            var group = new Group() 
+            { 
+                Id = 0, 
+                Categories = new List<Category> { new Category { Id = 0 } } 
+            };
+
+            _mockRepository.Setup(
+                x => x.Get(
+                    It.Is<int>(x => x.Equals(id)),
+                    It.Is<string>(x => x.Equals(UserId))
+                    ))
+                .Returns(group)
+                .Verifiable();
+
+            //Act
+            var controller = new GroupsController(_mockRepository.Object);
+            base.AddControllerContext(controller);
+
+            ActionResult result = controller.Delete(id);
+
+            //Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Este grupo não pode ser removido, pois possui dependentes", GetValueInResult(result));
+            _mockRepository.VerifyAll();
+        }
+
+        [Fact]
+        public void Delete_NotFound_Exception()
+        {
+            //Arrange 
+            int id = _faker.Random.Int(1);
+
+            //Act
+            var controller = new GroupsController(_mockRepository.Object);
+            base.AddControllerContext(controller);
+
+            ActionResult result = controller.Delete(id);
+
+            //Assert
+            Assert.IsType<NotFoundResult>(result);
+            _mockRepository.VerifyAll();
+
+        }
+
+    }
 }
