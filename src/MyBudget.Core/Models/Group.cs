@@ -14,7 +14,7 @@ namespace MyBudget.Core.Models
         public string Abbr { get; set; }
 
         [Required]
-        public Sense Sense { get; set; }
+        public Flow Flow { get; set; }
         
         public List<Category> Categories { get; set; }
 

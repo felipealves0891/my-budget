@@ -7,6 +7,6 @@
 
         public string Abbr { get; set; } = string.Empty;
 
-        public string Sense { get; set; } = string.Empty;
+        public string Flow { get; set; } = string.Empty;
     }
 }

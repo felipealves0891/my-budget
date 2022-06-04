@@ -14,7 +14,7 @@ namespace MyBudget.Core.Models
         public string Abbr { get; set; }
 
         [Required]
-        public Sense Sense { get; set; }
+        public Flow Flow { get; set; }
 
         [Required]
         public int GroupId { get; set; }

@@ -25,14 +25,14 @@ namespace MyBudget.Core.Controllers
             if (exists != null)
                 return BadRequest("Você já possui um grupo com esse nome!");
 
-            if (!Enum.TryParse<Sense>(dto.Sense, out var sense))
+            if (!Enum.TryParse<Flow>(dto.Flow, out var sense))
                 return BadRequest("O fluxo escolhido é invalido!");
 
             var group = new Group
             {
                 Name = dto.Name,
                 Abbr = dto.Abbr,
-                Sense = sense,
+                Flow = sense,
                 OwnerId = ownerId
             };
 
@@ -60,7 +60,7 @@ namespace MyBudget.Core.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
             var ownerId = ((ClaimsIdentity)User.Identity).FindFirst("Id").Value;

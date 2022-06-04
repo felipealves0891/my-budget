@@ -33,7 +33,7 @@ namespace MyBudget.Core.Tests.Controllers
             {
                 Name = _faker.Random.Word(),
                 Abbr = _faker.Random.Word(),
-                Sense = "Entry"
+                Flow = "In"
             };
 
             _mockRepository.Setup(r => r.Add(It.IsAny<Group>()))
@@ -58,7 +58,7 @@ namespace MyBudget.Core.Tests.Controllers
             {
                 Name = _faker.Random.Word(),
                 Abbr = _faker.Random.Word(),
-                Sense = "Out"
+                Flow = "Out"
             };
 
             _mockRepository.Setup(x => x.Get(It.Is<string>(s => s.Equals(dto.Name)), It.Is<string>(s => s.Equals(UserId))))
@@ -85,7 +85,7 @@ namespace MyBudget.Core.Tests.Controllers
             {
                 Name = _faker.Random.Word(),
                 Abbr = _faker.Random.Word(),
-                Sense = "Teste"
+                Flow = "Teste"
             };
 
             //Act
@@ -116,7 +116,7 @@ namespace MyBudget.Core.Tests.Controllers
                 Id = dto.Id,
                 Name = _faker.Random.Word(),
                 Abbr = _faker.Random.Word(),
-                Sense = Sense.Entry,
+                Flow = Flow.In,
                 OwnerId = UserId
             };
 
@@ -197,13 +197,26 @@ namespace MyBudget.Core.Tests.Controllers
         {
             //Arrange 
             int id = _faker.Random.Int(1);
-            var group = new Group() { Id = 0 };
+            var group = new Group() 
+            { 
+                Id = 0,
+                Categories = new List<Category> { }
+            };
+
+            _mockRepository.Setup(
+                x => x.Get(
+                    It.Is<int>(x => x.Equals(id)),
+                    It.Is<string>(x => x.Equals(UserId))))
+                .Returns(group)
+                .Verifiable();
+
             _mockRepository.Setup(x => x.Delete(It.Is<int>(x => x.Equals(id))))
                 .Returns(group)
                 .Verifiable();
 
             //Act
             var controller = new GroupsController(_mockRepository.Object);
+            base.AddControllerContext(controller);
             ActionResult result = controller.Delete(id);
 
             //Assert

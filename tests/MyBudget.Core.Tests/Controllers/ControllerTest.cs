@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace MyBudget.Core.Tests.Controllers
 {
@@ -53,6 +54,19 @@ namespace MyBudget.Core.Tests.Controllers
             }
 
             return value;
+        }
+
+        protected void AssertByProperties(object expected, object actual)
+        {
+            Assert.Equal(expected.GetType(), actual.GetType());
+            var properties = expected.GetType().GetProperties();
+
+            foreach (var property in properties)
+            {
+                var a = property.GetValue(expected);
+                var b = property.GetValue(actual);
+                Assert.Equal(a, b);
+            }
         }
     }
 }
