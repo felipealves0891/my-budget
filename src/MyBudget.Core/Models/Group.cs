@@ -2,7 +2,7 @@
 
 namespace MyBudget.Core.Models
 {
-    public class Group
+    public class Group : IModel
     {
         [Key]
         public int Id { get; set; }
