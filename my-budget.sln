@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyBudget.Core", "src\MyBudget.Core\MyBudget.Core.csproj", "{B7439513-2998-4F98-B28B-91536120CD2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyBudget.Core", "src\MyBudget.Core\MyBudget.Core.csproj", "{B7439513-2998-4F98-B28B-91536120CD2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyBudget.Core.Tests", "tests\MyBudget.Core.Tests\MyBudget.Core.Tests.csproj", "{A4CB4775-ED70-45EF-9635-CB126556392B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{B7439513-2998-4F98-B28B-91536120CD2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7439513-2998-4F98-B28B-91536120CD2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7439513-2998-4F98-B28B-91536120CD2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4CB4775-ED70-45EF-9635-CB126556392B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4CB4775-ED70-45EF-9635-CB126556392B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4CB4775-ED70-45EF-9635-CB126556392B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4CB4775-ED70-45EF-9635-CB126556392B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
